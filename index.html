@@ -16,8 +16,8 @@
   <div class="dados">🌬️ Velocidade do Vento: <span id="vento">--</span> km/h</div>
 
   <script>
-    const token = 'vo3kL1co1K8Pl12xO-heZMu1Nm29xPeI'; // Substitua pelo token do seu dispositivo Blynk
-    const baseURL = `https://blynk.cloud/ehttps://blynk.cloud/external/api/get?token=vo3kL1co1K8Pl12xO-heZMu1Nm29xPeI&vXxternal/api/get`;
+    const token = 'vo3kL1co1K8Pl12xO-heZMu1Nm29xPeI';
+    const baseURL = `https://blynk.cloud/external/api/get`;
 
     async function atualizarDados() {
       try {
@@ -33,9 +33,8 @@
       }
     }
 
-    // Atualiza a cada 5 segundos
-    setInterval(atualizarDados, 10);
-    atualizarDados(); // Chamada inicial
+    setInterval(atualizarDados, 5000);
+    atualizarDados();
   </script>
 </body>
 </html>
