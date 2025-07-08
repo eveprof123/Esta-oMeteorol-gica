@@ -3,37 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <title>Estação Meteorológica</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
-    h1 { color: #007BFF; }
-    .dados { font-size: 24px; margin: 20px; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #eaf6ff, #ffffff);
+      color: #333;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #2b7a78;
+    }
+    .dados {
+      font-size: 22px;
+      margin: 10px 0;
+    }
+    .graficos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 40px;
+    }
+    .grafico-container {
+      width: 300px;
+    }
   </style>
 </head>
 <body>
-  <h1>🌤️ Estação Meteorológica</h1>
-  <div class="dados">🌡️ Temperatura: <span id="temp">--</span> °C</div>
-  <div class="dados">💧 Umidade: <span id="umid">--</span> %</div>
-  <div class="dados">🌬️ Velocidade do Vento: <span id="vento">--</span> km/h</div>
+  <h1>🌇 Colégio Estadual Manoel Antonio Gomes<br>Estacão Meteorológica</h1>
+  <div class="dados">
+    🌡️ Temperatura: <span id="temp">--</span> °C
+  </div>
+  <div class="dados">
+    💧 Umidade: <span id="umid">--</span> %
+  </div>
+  <div class="dados">
+    🌬️ Vento: <span id="vento">--</span> km/h
+  </div>
+
+  <div class="graficos">
+    <div class="grafico-container">
+      <canvas id="graficoTemp"></canvas>
+    </div>
+    <div class="grafico-container">
+      <canvas id="graficoUmid"></canvas>
+    </div>
+    <div class="grafico-container">
+      <canvas id="graficoVento"></canvas>
+    </div>
+  </div>
 
   <script>
-    const token = 'vo3kL1co1K8Pl12xO-heZMu1Nm29xPeI';
-    const baseURL = `https://blynk.cloud/external/api/get`;
+    const baseURL = "https://script.google.com/macros/s/AKfycbwr9HNKU2vOM1Jq93NfsuH0TaV66D4MeNRbIcqrqgw7tKUJlqP3v5s6BlZfaYAEseCbbA/exec";
+    const tempEl = document.getElementById("temp");
+    const umidEl = document.getElementById("umid");
+    const ventoEl = document.getElementById("vento");
+
+    const labels = [];
+    const tempData = [];
+    const umidData = [];
+    const ventoData = [];
+
+    const configGrafico = (label, data, cor) => ({
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: label,
+          data: data,
+          fill: false,
+          borderColor: cor,
+          tension: 0.2
+        }]
+      },
+      options: {
+        scales: {
+          x: { display: false },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    const graficoTemp = new Chart(document.getElementById('graficoTemp'), configGrafico('Temperatura °C', tempData, '#ff6f61'));
+    const graficoUmid = new Chart(document.getElementById('graficoUmid'), configGrafico('Umidade %', umidData, '#0096c7'));
+    const graficoVento = new Chart(document.getElementById('graficoVento'), configGrafico('Vento km/h', ventoData, '#7b2cbf'));
 
     async function atualizarDados() {
       try {
-        const temp = await fetch(`${baseURL}?token=${token}&v0`).then(r => r.text());
-        const umid = await fetch(`${baseURL}?token=${token}&v1`).then(r => r.text());
-        const vento = await fetch(`${baseURL}?token=${token}&v2`).then(r => r.text());
+        const resposta = await fetch(baseURL);
+        const texto = await resposta.text();
+        console.log(texto);
+        // Adapte conforme a resposta do seu WebApp (se JSON ou texto simples)
 
-        document.getElementById('temp').innerText = temp;
-        document.getElementById('umid').innerText = umid;
-        document.getElementById('vento').innerText = vento;
-      } catch (err) {
-        console.error("Erro ao obter dados do Blynk:", err);
+        // Se for JSON:
+        // const dados = await resposta.json();
+        // let temp = dados.temp;
+
+        // Se for texto simples e ordenado (temp, umid, vento):
+        const dados = texto.split(",");
+        const temp = parseFloat(dados[0]);
+        const umid = parseFloat(dados[1]);
+        const vento = parseFloat(dados[2]);
+
+        const horario = new Date().toLocaleTimeString();
+
+        tempEl.innerText = temp;
+        umidEl.innerText = umid;
+        ventoEl.innerText = vento;
+
+        labels.push(horario);
+        tempData.push(temp);
+        umidData.push(umid);
+        ventoData.push(vento);
+
+        if (labels.length > 20) {
+          labels.shift();
+          tempData.shift();
+          umidData.shift();
+          ventoData.shift();
+        }
+
+        graficoTemp.update();
+        graficoUmid.update();
+        graficoVento.update();
+
+      } catch (erro) {
+        console.error("Erro ao buscar dados:", erro);
       }
     }
 
-    setInterval(atualizarDados, 10);
+    setInterval(atualizarDados, 5000);
     atualizarDados();
   </script>
 </body>

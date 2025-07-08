@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Estação Meteorológica</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
+    h1 { color: #007BFF; }
+    .dados { font-size: 24px; margin: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🌤️ Estação Meteorológica</h1>
+  <div class="dados">🌡️ Temperatura: <span id="temp">--</span> °C</div>
+  <div class="dados">💧 Umidade: <span id="umid">--</span> %</div>
+  <div class="dados">🌬️ Velocidade do Vento: <span id="vento">--</span> km/h</div>
+
+  <script>
+    const token = 'vo3kL1co1K8Pl12xO-heZMu1Nm29xPeI';
+    const baseURL = `https://blynk.cloud/external/api/get`;
+
+    async function atualizarDados() {
+      try {
+        const temp = await fetch(`${baseURL}?token=${token}&v0`).then(r => r.text());
+        const umid = await fetch(`${baseURL}?token=${token}&v1`).then(r => r.text());
+        const vento = await fetch(`${baseURL}?token=${token}&v2`).then(r => r.text());
+
+        document.getElementById('temp').innerText = temp;
+        document.getElementById('umid').innerText = umid;
+        document.getElementById('vento').innerText = vento;
+      } catch (err) {
+        console.error("Erro ao obter dados do Blynk:", err);
+      }
+    }
+
+    setInterval(atualizarDados, 10);
+    atualizarDados();
+  </script>
+</body>
+</html>
