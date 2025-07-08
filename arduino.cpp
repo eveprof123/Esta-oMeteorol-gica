@@ -1,6 +1,7 @@
 #define BLYNK_TEMPLATE_ID "TMPL2oatTA_0_"
 #define BLYNK_TEMPLATE_NAME "Estação Meteorológica"
-#define BLYNK_AUTH_TOKEN ""
+//Token do Blynk
+#define BLYNK_AUTH_TOKEN ""  
 
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_Sensor.h>
@@ -11,7 +12,8 @@
 
 // === CONEXÃO COM WIFI E BLYNK ===
 char auth[] = BLYNK_AUTH_TOKEN;
-char ssid[] = "ROBOTICA 1";
+
+char ssid[] = "";   //Nome da rede
 char pass[] = "";
 
 // === LCD I2C ===
