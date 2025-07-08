@@ -42,6 +42,7 @@ void setup() {
   pinMode(pinSensor, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(pinSensor), contarPulso, RISING);
 
+  pinMode(DHTPIN, INPUT_PULLUP);
   dht.begin();
   Blynk.begin(auth, ssid, pass);
 
