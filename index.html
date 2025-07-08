@@ -7,74 +7,87 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #eaf6ff, #ffffff);
+      background: #fff;
       color: #333;
       text-align: center;
-      padding: 30px;
+      margin: 0;
+      padding: 0;
     }
-    h1 {
-      color: #2b7a78;
+    header {
+      padding: 30px 20px 10px;
     }
-    .dados {
-      font-size: 22px;
-      margin: 10px 0;
+    header h1 {
+      margin: 0;
+      font-size: 24px;
     }
-    .graficos {
+    header h2 {
+      margin: 10px 0 20px;
+      font-size: 20px;
+      font-weight: normal;
+    }
+    main {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
-      margin-top: 40px;
+      justify-content: space-around;
+      padding: 20px;
     }
     .grafico-container {
-      width: 300px;
+      width: 400px;
+      margin-bottom: 30px;
+    }
+    .painel {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .painel div {
+      margin: 0 10px;
+    }
+    .img-apoio {
+      max-width: 400px;
+      height: auto;
     }
   </style>
 </head>
 <body>
-  <h1>🌇 Colégio Estadual Manoel Antonio Gomes<br>Estacão Meteorológica</h1>
-  <div class="dados">
-    🌡️ Temperatura: <span id="temp">--</span> °C
-  </div>
-  <div class="dados">
-    💧 Umidade: <span id="umid">--</span> %
-  </div>
-  <div class="dados">
-    🌬️ Vento: <span id="vento">--</span> km/h
-  </div>
+  <header>
+    <h1>Colégio Estadual Manoel Antonio Gomes</h1>
+    <h2>Estação Meteorológica</h2>
+  </header>
 
-  <div class="graficos">
-    <div class="grafico-container">
-      <canvas id="graficoTemp"></canvas>
-    </div>
-    <div class="grafico-container">
-      <canvas id="graficoUmid"></canvas>
-    </div>
+  <main>
     <div class="grafico-container">
       <canvas id="graficoVento"></canvas>
     </div>
+    <img src="Estacao Meteorologica.png" alt="Imagem apoio" class="img-apoio">
+  </main>
+
+  <div class="painel">
+    <div>🌡️ Temp: <span id="temp">--</span> °C</div>
+    <div>💧 Umidade: <span id="umid">--</span> %</div>
+    <div>🌬️ Vento: <span id="vento">--</span> km/h</div>
   </div>
 
   <script>
-    const baseURL = "https://script.google.com/macros/s/AKfycbwr9HNKU2vOM1Jq93NfsuH0TaV66D4MeNRbIcqrqgw7tKUJlqP3v5s6BlZfaYAEseCbbA/exec";
+    const BLYNK_TOKEN = "SEU_TOKEN_AQUI"; // substitua pelo seu token real
+
     const tempEl = document.getElementById("temp");
     const umidEl = document.getElementById("umid");
     const ventoEl = document.getElementById("vento");
 
     const labels = [];
-    const tempData = [];
-    const umidData = [];
     const ventoData = [];
 
-    const configGrafico = (label, data, cor) => ({
+    const configVento = {
       type: 'line',
       data: {
         labels: labels,
         datasets: [{
-          label: label,
-          data: data,
+          label: 'Velocidade do Vento (km/h)',
+          data: ventoData,
+          borderColor: '#ff6f61',
           fill: false,
-          borderColor: cor,
           tension: 0.2
         }]
       },
@@ -84,29 +97,20 @@
           y: { beginAtZero: true }
         }
       }
-    });
+    };
 
-    const graficoTemp = new Chart(document.getElementById('graficoTemp'), configGrafico('Temperatura °C', tempData, '#ff6f61'));
-    const graficoUmid = new Chart(document.getElementById('graficoUmid'), configGrafico('Umidade %', umidData, '#0096c7'));
-    const graficoVento = new Chart(document.getElementById('graficoVento'), configGrafico('Vento km/h', ventoData, '#7b2cbf'));
+    const graficoVento = new Chart(document.getElementById('graficoVento'), configVento);
 
     async function atualizarDados() {
       try {
-        const resposta = await fetch(baseURL);
+        const url = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V0&V1&V2`;
+        const resposta = await fetch(url);
         const texto = await resposta.text();
-        console.log(texto);
-        // Adapte conforme a resposta do seu WebApp (se JSON ou texto simples)
+        const dados = texto.split(',');
 
-        // Se for JSON:
-        // const dados = await resposta.json();
-        // let temp = dados.temp;
-
-        // Se for texto simples e ordenado (temp, umid, vento):
-        const dados = texto.split(",");
         const temp = parseFloat(dados[0]);
         const umid = parseFloat(dados[1]);
         const vento = parseFloat(dados[2]);
-
         const horario = new Date().toLocaleTimeString();
 
         tempEl.innerText = temp;
@@ -114,27 +118,20 @@
         ventoEl.innerText = vento;
 
         labels.push(horario);
-        tempData.push(temp);
-        umidData.push(umid);
         ventoData.push(vento);
 
         if (labels.length > 20) {
           labels.shift();
-          tempData.shift();
-          umidData.shift();
           ventoData.shift();
         }
 
-        graficoTemp.update();
-        graficoUmid.update();
         graficoVento.update();
-
       } catch (erro) {
-        console.error("Erro ao buscar dados:", erro);
+        console.error("Erro ao buscar dados do Blynk:", erro);
       }
     }
 
-    setInterval(atualizarDados, 5000);
+    setInterval(atualizarDados, 10);
     atualizarDados();
   </script>
 </body>
