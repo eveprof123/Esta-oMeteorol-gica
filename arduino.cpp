@@ -1,6 +1,6 @@
 #define BLYNK_TEMPLATE_ID "TMPL2oatTA_0_"
 #define BLYNK_TEMPLATE_NAME "Estação Meteorológica"
-#define BLYNK_AUTH_TOKEN "vo3kL1co1K8Pl12xO-heZMu1Nm29xPeI"
+//#define BLYNK_AUTH_TOKEN ""
 
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_Sensor.h>
